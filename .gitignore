@@ -1,4 +1,7 @@
 .idea/
 *.swp
 .terraform/
+*.tfstate
+*.tfstate.backup
 .oci/
+.envfile
