@@ -1,28 +1,36 @@
 MAKEFLAGS+=--silent
-.PHONY: create destroy scripts tf-fmt
+.PHONY: create destroy docker script
+.PHONY: tf-fmt tf-apply tf-plan tf-destroy
 
-create: scripts
+define script
 	docker run \
-		-it \
-		-v $$PWD/scripts:/scripts \
-		-v $$PWD/tf:/tf \
-		-p 8181:8181 \
-		--env-file .envfile \
-		--entrypoint /scripts/create.sh \
-		rcoy-v/cloud-native
+    		-it \
+    		-v $$PWD/scripts:/scripts \
+    		-v $$PWD/tf:/tf \
+    		-v $$HOME/.oci:/root/.oci \
+    		-w /tf \
+    		--env-file .envfile \
+    		--entrypoint /scripts/$(1).sh \
+    		rcoy-v/cloud-native
+endef
 
-destroy: scripts
-	docker run \
-		-it \
-		-v $$PWD/scripts:/scripts \
-		-v $$PWD/tf:/tf \
-		-p 8181:8181 \
-		--env-file .envfile \
-		--entrypoint /scripts/destroy.sh \
-		rcoy-v/cloud-native
+create: docker
+	$(call script,create)
 
-scripts:
+destroy: docker
+	$(call script,destroy)
+
+docker:
 	docker build -t rcoy-v/cloud-native .
 
 tf-fmt:
 	docker run -v $$PWD/tf:/tf hashicorp/terraform fmt /tf
+
+tf-plan: docker
+	$(call script,tf-plan)
+
+tf-apply: docker
+	$(call script,tf-apply)
+
+tf-destroy: docker
+	$(call script,tf-destroy)

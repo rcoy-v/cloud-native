@@ -5,3 +5,4 @@
 *.tfstate.backup
 .oci/
 .envfile
+kubeconfig.yaml

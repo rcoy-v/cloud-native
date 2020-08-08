@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-oci session authenticate --region $HOME_REGION
+#oci session authenticate --region $HOME_REGION
 
 pushd /tf
 terraform init
