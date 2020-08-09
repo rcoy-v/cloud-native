@@ -1,9 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-#oci session authenticate --region $HOME_REGION
+oci session authenticate --region $HOME_REGION
 
-pushd /tf
+pushd tf
 terraform init
-terraform apply --auto-approve \
-    -var "tenancy_ocid=$TENANCY_OCID"
+terraform apply --auto-approve -var "tenancy_ocid=$TENANCY_OCID"
+CLUSTER_OCID=$(terraform output -json | jq -r '.cloud_native_cluster_ocid.value')
+popd
+
+oci --auth security_token ce cluster create-kubeconfig \
+    --cluster-id "$CLUSTER_OCID" \
+    --overwrite
+
+# Use security token authentication method for kubectl.
+# Not possible to set directly through oci.
+cat << EOF > /root/.kube/config
+$(yq r -j /root/.kube/config | jq '.users[0].user.exec.args |= . + ["--auth", "security_token"]' | yq r -P -)
+EOF
+
+helm template openfaas k8s/openfaas/ --namespace openfaas | kubectl apply -f -
+deployments="alertmanager basic-auth-plugin faas-idler gateway nats prometheus queue-worker"
+for deployment in $deployments; do
+    kubectl -n openfaas rollout status deploy $deployment
+done

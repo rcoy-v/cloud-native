@@ -6,3 +6,6 @@
 .oci/
 .envfile
 kubeconfig.yaml
+node_modules/
+template
+build
