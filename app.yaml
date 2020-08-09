@@ -1,0 +1,10 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://gateway.example
+functions:
+  app:
+    lang: node12
+    handler: ./app
+    image: rcoyv/cloud-native-app:0.0.1
+

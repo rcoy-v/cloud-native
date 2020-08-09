@@ -1,0 +1,18 @@
+{
+    "name": "openfaas-function",
+    "version": "1.0.0",
+    "description": "OpenFaaS Function",
+    "main": "handler.js",
+    "scripts": {
+        "test": "mocha *.test.js"
+    },
+    "keywords": [],
+    "author": "OpenFaaS Ltd",
+    "license": "MIT",
+    "devDependencies": {
+        "chai": "4.2.0",
+        "chance": "1.1.6",
+        "mocha": "8.1.1",
+        "sinon": "9.0.2"
+    }
+}

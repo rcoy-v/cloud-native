@@ -8,6 +8,7 @@ define script
 		-v $$PWD/tf:/usr/src/app/tf \
 		-v $$PWD/k8s:/usr/src/app/k8s \
 		-v $$PWD/app:/usr/src/app/app \
+		-v $$PWD/app.yaml:/usr/src/app/app.yaml \
 		-p 8181:8181 \
 		--env-file .envfile \
 		--entrypoint /usr/src/app/scripts/$(1).sh \
@@ -26,9 +27,11 @@ docker:
 shell: docker
 	docker run \
 		-it \
-		-v $$PWD/scripts:/usr/src/app/scripts \
+		-v $$PWD/scripts:/usr/src/app/scripts\
 		-v $$PWD/tf:/usr/src/app/tf \
 		-v $$PWD/k8s:/usr/src/app/k8s \
+		-v $$PWD/app:/usr/src/app/app \
+		-v $$PWD/app.yaml:/usr/src/app/app.yaml \
 		-p 8181:8181 \
 		--env-file .envfile \
 		--entrypoint bash \

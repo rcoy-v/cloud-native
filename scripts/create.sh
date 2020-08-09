@@ -24,3 +24,20 @@ deployments="alertmanager basic-auth-plugin faas-idler gateway nats prometheus q
 for deployment in $deployments; do
     kubectl -n openfaas rollout status deploy $deployment
 done
+
+OPENFAAS_GATEWAY_IP=""
+while [ -z $OPENFAAS_GATEWAY_IP ]; do
+    echo "Waiting for gateway external IP"
+    sleep 5
+    OPENFAAS_GATEWAY_IP=$(kubectl get svc gateway-external -n openfaas -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+done
+echo "$OPENFAAS_GATEWAY_IP gateway.example" >> /etc/hosts
+
+OPENFAAS_USER=$(kubectl -n openfaas get secret basic-auth -o jsonpath="{.data.basic-auth-user}" | base64 -d)
+OPENFAAS_PASSWORD=$(kubectl -n openfaas get secret basic-auth -o jsonpath="{.data.basic-auth-password}" | base64 -d)
+
+faas-cli login -g http://gateway.example -u $OPENFAAS_USER -p $OPENFAAS_PASSWORD
+faas-cli template pull
+faas-cli deploy -f app.yaml
+
+echo "Add $OPENFAAS_GATEWAY_IP gateway.example to your local hosts file"

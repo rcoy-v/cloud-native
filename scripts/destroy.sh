@@ -19,7 +19,7 @@ EOF
 
 helm template openfaas k8s/openfaas/ --namespace openfaas | kubectl delete -f -
 
-pushd /tf
+pushd tf
 terraform init
 terraform destroy --auto-approve -var "tenancy_ocid=$TENANCY_OCID"
 popd
