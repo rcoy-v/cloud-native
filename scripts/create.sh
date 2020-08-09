@@ -19,6 +19,11 @@ cat << EOF > /root/.kube/config
 $(yq r -j /root/.kube/config | jq '.users[0].user.exec.args |= . + ["--auth", "security_token"]' | yq r -P -)
 EOF
 
+until [ $(kubectl get nodes | tail -n +2 | awk '{print $2}' | grep -e '^Ready$' | wc -l) == "2" ]; do
+    echo "Waiting for kubernetes nodes to become ready. This may take a few minutes."
+    sleep 15
+done
+
 helm template openfaas k8s/openfaas/ --namespace openfaas | kubectl apply -f -
 deployments="alertmanager basic-auth-plugin faas-idler gateway nats prometheus queue-worker"
 for deployment in $deployments; do

@@ -16,12 +16,3 @@ oci --auth security_token ce cluster create-kubeconfig \
 cat << EOF > /root/.kube/config
 $(yq r -j /root/.kube/config | jq '.users[0].user.exec.args |= . + ["--auth", "security_token"]' | yq r -P -)
 EOF
-
-# Delete k8s resources before destroying the OKE cluster, namely any LoadBalancer services.
-# OKE will not clean up any dynamically created infrastructure if a cluster is removed.
-helm template openfaas k8s/openfaas/ --namespace openfaas | kubectl delete -f -
-
-pushd tf
-terraform init
-terraform destroy --auto-approve -var "tenancy_ocid=$TENANCY_OCID"
-popd
