@@ -40,18 +40,18 @@ helm repo update
 # Dynamic security list updates for LoadBalancer services are not reliable.
 # Rules are defined ahead of time in Terraform.
 # https://docs.cloud.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengcreatingloadbalancer.htm#listmgmt
-kubectl create ns ingress-nginx
 helm install ingress-nginx ingress-nginx/ingress-nginx \
     -n ingress-nginx \
+    --create-namespace \
     --version 2.11.2 \
     --set defaultBackend.enabled="true" \
     --set controller.kind="DaemonSet" \
     --set controller.service.annotations."service\.beta\.kubernetes\.io\/oci-load-balancer-security-list-management-mode"=None \
     --wait
 
-kubectl create ns cert-manager
 helm install cert-manager jetstack/cert-manager \
     -n cert-manager \
+    --create-namespace \
     --version v0.16.1 \
     --set installCRDs=true \
     --set global.leaderElection.namespace=cert-manager \
@@ -90,3 +90,4 @@ faas-cli deploy -f app.yaml
 
 echo "Add '$OPENFAAS_GATEWAY_IP gateway.example' to your local hosts file"
 echo "Then access app at https://gateway.example/function/app"
+echo "You can also sign in to the OpenFaas management console at https://gateway.example with the credentials $OPENFAAS_USER:$OPENFAAS_PASSWORD"
