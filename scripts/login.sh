@@ -4,7 +4,7 @@ set -euo pipefail
 oci session authenticate --region $HOME_REGION
 
 pushd tf
-CLUSTER_OCID=$(terraform output -json | jq -r '.cloud_native_cluster_ocid.value')
+CLUSTER_OCID=$(terraform output -json | jq -r '.cluster_ocid.value')
 popd
 
 oci --auth security_token ce cluster create-kubeconfig \

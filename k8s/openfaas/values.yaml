@@ -2,7 +2,7 @@ functionNamespace: openfaas-fn  # Default namespace for functions
 
 async: true
 
-exposeServices: true
+exposeServices: false
 serviceType: LoadBalancer
 httpProbe: true               # Setting to true will use HTTP for readiness and liveness probe on the OpenFaaS system Pods (incompatible with Istio < 1.1.5)
 rbac: true
@@ -148,7 +148,7 @@ nats:
   enableMonitoring: false
   metrics:
     enabled: false
-    image: synadia/prometheus-nats-exporter:0.6.2 
+    image: synadia/prometheus-nats-exporter:0.6.2
   resources:
     requests:
       memory: "120Mi"
@@ -164,9 +164,16 @@ ingress:
       path: /
   annotations:
     kubernetes.io/ingress.class: nginx
+    cert-manager.io/issuer: selfsigned-issuer
   tls:
-    # Secrets must be manually created in the namespace.
-
+    - hosts:
+      - gateway.example
+      secretName: openfaas-tls
+  hosts:
+    - host: gateway.example
+      serviceName: gateway
+      servicePort: 8080
+      path: /
 # ingressOperator (optional) – component to have specific FQDN and TLS for Functions
 # https://github.com/openfaas-incubator/ingress-operator
 ingressOperator:

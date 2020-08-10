@@ -9,3 +9,7 @@ resource "oci_identity_compartment" "cloud_native" {
   description    = "Cloud Native"
   name           = "cloud-native"
 }
+
+output "compartment_ocid" {
+  value = oci_identity_compartment.cloud_native.id
+}

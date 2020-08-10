@@ -22,7 +22,7 @@ resource "oci_containerengine_cluster" "cloud_native" {
   }
 }
 
-output "cloud_native_cluster_ocid" {
+output "cluster_ocid" {
   value = oci_containerengine_cluster.cloud_native.id
 }
 
@@ -58,4 +58,9 @@ resource "oci_containerengine_node_pool" "standard" {
     image_id    = "ocid1.image.oc1.phx.aaaaaaaa75jewsxs5j5lwtucurynvmf6aomgkm5ty33c23vb6ouxxoj2tu3q"
     source_type = "IMAGE"
   }
+}
+
+
+output "node_pool_ocid" {
+  value = oci_containerengine_node_pool.standard.id
 }

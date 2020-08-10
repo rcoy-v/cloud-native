@@ -18,7 +18,7 @@ RUN wget -qO /usr/bin/yq https://github.com/mikefarah/yq/releases/download/3.3.2
 RUN pip install --quiet oci-cli && \
     oci -v
 
-RUN wget -qO /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v1.16.8/bin/linux/amd64/kubectl && \
+RUN wget -qO /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v1.18.6/bin/linux/amd64/kubectl && \
     chmod +x /usr/local/bin/kubectl && \
     kubectl version --client
 
