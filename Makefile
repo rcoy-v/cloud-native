@@ -33,6 +33,7 @@ shell: docker
 		-v $$PWD/app:/usr/src/app/app \
 		-v $$PWD/app.yaml:/usr/src/app/app.yaml \
 		-p 8181:8181 \
+		-p 3000:3000 \
 		--env-file .envfile \
 		--entrypoint bash \
 		rcoy-v/cloud-native-scripts

@@ -29,8 +29,10 @@ EOF
 # OKE will not clean up any dynamically created infrastructure when a cluster is removed.
 # This can prevent Terraform managed resources from being destroyed.
 pushd k8s
-helm template openfaas openfaas/ --namespace openfaas | kubectl delete -f -
-kubectl delete -f openfaas/namespaces.yaml
+helm uninstall openfaas -n openfaas
+kubectl delete ns openfaas
+helm uninstall grafana -n grafana
+kubectl delete ns grafana
 helm uninstall ingress-nginx -n ingress-nginx
 kubectl delete ns ingress-nginx
 helm uninstall cert-manager -n cert-manager

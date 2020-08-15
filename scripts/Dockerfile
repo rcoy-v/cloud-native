@@ -9,7 +9,8 @@ RUN apk add --update --no-progress \
     ca-certificates \
     terraform \
     bash \
-    jq
+    jq \
+    tmux
 
 RUN wget -qO /usr/bin/yq https://github.com/mikefarah/yq/releases/download/3.3.2/yq_linux_amd64 && \
     chmod +x /usr/bin/yq && \

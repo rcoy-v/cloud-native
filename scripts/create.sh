@@ -35,37 +35,37 @@ done
 
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo add jetstack https://charts.jetstack.io
+helm repo add stable https://kubernetes-charts.storage.googleapis.com
 helm repo update
 
-# Dynamic security list updates for LoadBalancer services are not reliable.
-# Rules are defined ahead of time in Terraform.
-# https://docs.cloud.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengcreatingloadbalancer.htm#listmgmt
+pushd k8s
+
 helm install ingress-nginx ingress-nginx/ingress-nginx \
     -n ingress-nginx \
     --create-namespace \
     --version 2.11.2 \
-    --set defaultBackend.enabled="true" \
-    --set controller.kind="DaemonSet" \
-    --set controller.service.annotations."service\.beta\.kubernetes\.io\/oci-load-balancer-security-list-management-mode"=None \
-    --wait
+    --wait \
+    -f ingress-nginx/values.yaml
 
 helm install cert-manager jetstack/cert-manager \
     -n cert-manager \
     --create-namespace \
     --version v0.16.1 \
-    --set installCRDs=true \
-    --set global.leaderElection.namespace=cert-manager \
-    --wait
+    --wait \
+    -f cert-manager/values.yaml
 
-echo "deploying openfaas"
-pushd k8s
-kubectl apply -f openfaas/namespaces.yaml
-kubectl apply -f openfaas/selfsigned-issuer.yaml
-helm template openfaas openfaas/ --namespace openfaas | kubectl apply -f -
-OPENFAAS_DEPLOYMENTS="$(kubectl -n openfaas get deploy -o jsonpath='{.items[*].metadata.name}')"
-for deployment in $OPENFAAS_DEPLOYMENTS; do
-    kubectl -n openfaas rollout status deploy $deployment
-done
+helm install openfaas ./openfaas \
+  -n openfaas \
+  --create-namespace \
+  --wait
+
+helm install grafana stable/grafana \
+  -n grafana \
+  --create-namespace \
+  --version 5.5.5 \
+  --wait \
+  -f grafana/values.yaml
+
 popd
 
 # Setup local hosts entry for external LoadBalancer IP

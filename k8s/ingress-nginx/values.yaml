@@ -1,0 +1,10 @@
+defaultBackend:
+    enabled: "true"
+controller:
+    kind: "DaemonSet"
+    service:
+        annotations:
+            # Dynamic security list updates for LoadBalancer services are not reliable.
+            # Rules are defined ahead of time in Terraform.
+            # https://docs.cloud.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengcreatingloadbalancer.htm#listmgmt
+            "service.beta.kubernetes.io/oci-load-balancer-security-list-management-mode": "None"
