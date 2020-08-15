@@ -1,7 +1,6 @@
 version: 1.0
 provider:
   name: openfaas
-  gateway: https://gateway.example
 functions:
   app:
     lang: node12

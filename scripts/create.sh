@@ -86,7 +86,7 @@ OPENFAAS_PASSWORD=$(kubectl -n openfaas get secret basic-auth -o jsonpath="{.dat
 
 echo $OPENFAAS_PASSWORD | faas-cli login -g https://gateway.example -u $OPENFAAS_USER -s
 faas-cli template pull
-faas-cli deploy -f app.yaml
+faas-cli deploy -f app.yaml -g https://gateway.example
 
 echo "Add '$OPENFAAS_GATEWAY_IP gateway.example' to your local hosts file"
 echo "Then access app at https://gateway.example/function/app"
