@@ -1,0 +1,11 @@
+config:
+    target: 'https://gateway.example'
+    tls:
+        rejectUnauthorized: false
+    phases:
+        - duration: 60
+          arrivalRate: 20
+scenarios:
+    - flow:
+          - get:
+                url: "/function/app"
