@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+    name: openfaas-ca
+    namespace: openfaas
+spec:
+    secretName: openfaas-ca
+    issuerRef:
+        name: selfsigned
+        kind: Issuer
+    isCA: true
+    commonName: openfaas

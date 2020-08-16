@@ -1,6 +1,6 @@
 FROM python:alpine
 
-RUN apk add --update --no-progress \
+RUN apk add --update --no-progress --no-cache\
     alpine-sdk \
     libffi \
     libffi-dev \

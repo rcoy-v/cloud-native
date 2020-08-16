@@ -106,7 +106,7 @@ done
 echo "$OPENFAAS_GATEWAY_IP gateway.example" >> /etc/hosts
 
 # Trust self-signed cert when interacting with OpenFaaS gateway
-kubectl -n openfaas get secret openfaas-tls -o "jsonpath={.data['tls\.crt']}" | base64 -d > /usr/local/share/ca-certificates/openfaas.crt
+kubectl -n openfaas get secret openfaas-ca -o "jsonpath={.data['tls\.crt']}" | base64 -d > /usr/local/share/ca-certificates/openfaas.crt
 update-ca-certificates
 msg 'Finished gathering load balancer and gateway information'
 
@@ -118,6 +118,12 @@ echo $OPENFAAS_PASSWORD | faas-cli login -g https://gateway.example -u $OPENFAAS
 faas-cli template pull
 faas-cli deploy -f app.yaml -g https://gateway.example
 msg 'Finished deploying app function'
+
+msg 'Testing public connectivity to function'
+until curl https://gateway.example/function/app -m 5; do
+    echo "Waiting for app to deploy"
+done
+msg 'Finished testing connectivity'
 
 cat << EOF
 Add '$OPENFAAS_GATEWAY_IP gateway.example' to your local hosts file
