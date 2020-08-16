@@ -1,5 +1,5 @@
 MAKEFLAGS+=--silent
-.PHONY: create destroy docker shell tf-fmt
+.PHONY: create destroy docker shell tf-fmt build-app push-app
 
 define script
 	docker run \
@@ -31,3 +31,9 @@ shell: docker
 
 tf-fmt:
 	docker run -v $$PWD/tf:/tf hashicorp/terraform fmt /tf
+
+build-app:
+	faas-cli build -f app.yaml
+
+push-app: build-app
+	faas-cli push -f app.yaml
