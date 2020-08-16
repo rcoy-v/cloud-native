@@ -7,7 +7,7 @@ Includes a command to deploy everything in your own cloud account in an automate
 
 The application in this cloud native example is an OpenFaas function, using [Node.js](https://nodejs.org/).
 
-[OpenFaas](https://www.openfaas.com/) is a platform for serverless functions,
+[OpenFaas](https://www.openfaas.com/) is a framework for serverless functions,
  that can be run on top of Kubernetes.
 Functions are packaged, run, and managed as [Docker](https://www.docker.com/) containers.
 
@@ -23,7 +23,7 @@ with [Cert Manager](https://cert-manager.io/) handling the self-signed TLS certi
 
 ### Infrastructure
 
-[Oracle Cloud](https://www.oracle.com/cloud/) is a public cloud provider from Oracle, referred to as OCI.
+[Oracle Cloud Infrastructure](https://www.oracle.com/cloud/) is a public cloud provider from Oracle, referred to as OCI.
 This example uses OCI for all infrastructure, such as networking and OKE,
 utilizing the publicly available free trial.
 
@@ -36,7 +36,7 @@ If you do not meet these prerequisites, you will not be able to successfully dep
 
 ### Oracle Cloud account
 
-You must active a free trial account for Oracle Cloud, or otherwise have an existing paid account.
+You must activate a free trial account for Oracle Cloud, or otherwise have an existing paid account.
 The free trial offering is valid for 30 days with a $300 credit.
 https://www.oracle.com/cloud/free/
 
@@ -55,7 +55,7 @@ TENANCY_OCID=ocid1.tenancy.oc1..aaaa...
 HOME_REGION=us-phoenix-1
 ```
 
-Read [this](https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/identifiers.htm) if you need help finding this information.
+If you need help finding this information, read [this](https://docs.cloud.oracle.com/en-us/iaas/Content/General/Concepts/identifiers.htm).
 
 ### Docker
 
@@ -71,58 +71,100 @@ This is done through a browser-based login flow.
 
 ## Creation
 
-The cloud infrastructure, Kubernetes setup, and application are deployed by a single command.
+A single command deploys the cloud infrastructure, Kubernetes setup, and application.
 This process will likely take 10+ minutes to finish.
 If at any point it seems like something may be stuck, do not interrupt or cancel the process.
-It is likely waiting on a particular cloud resource to finish provisioning before moving on.
+It is likely waiting on a particular cloud or Kubernetes resource to finish provisioning before moving on.
 
-### Steps
 1. Make sure prerequisites are in place, defined in the previous section.
-1. Clone this repository.
 1. Run `make`.
 
-It will prompt you early on to sign in to OCI with a given URL.
-Open that URL in your browser and sign in with your OCI account credentials.
-When you see:
- 
-> Authorization completed! Please close this window and return to your terminal to finish the bootstrap process.
+### steps of creation command
 
-return to the command line.
+During execution, the command will print messages for every step taken.
+Below is an overview of the major things `make` will do:
+
+1. Build a local Docker image to run the actual create script.
+The first time this image is built can take a few minutes.
+1. You will be prompted to sign in to OCI with a given URL.
+Open that URL in your browser and sign in with your OCI account credentials.
+When you see the following message, you can return to the command line:
+    > Authorization completed! Please close this window and return to your terminal to finish the bootstrap process.
+1. Terraform will be applied, creating all OCI resources in the `cloud-native` compartment.
+This can take 5+ minutes to complete.
+1. The script will wait for the Kubernetes worker nodes to become ready.
+This can also take 5+ minutes.
+1. Kubernetes resources will be deployed, such as OpenFaas, Ingress-Nginx, and Cert-Manager.
+1. The application function will be deployed through the OpenFaas gateway.
+1. Public connectivity to the function will be tested.
+1. Final instructions will be printed for you to add an entry to your local hosts file,
+and how to access the function from your machine.
+Read [this](https://support.rackspace.com/how-to/modify-your-hosts-file/) if you are unfamiliar with how to do this.
  
-When `make` has finished, it will print instructions for a line to be added to your local hosts.
-Read [this](https://support.rackspace.com/how-to/modify-your-hosts-file/) if you are unfamiliar with how to do this. 
- 
-Once you have followed the above steps, the application can be accessed at https://gateway.example/function/app.
+When `make` has finished and you followed the final printed steps, the application can be accessed at https://gateway.example/function/app.
 This demonstration uses a self-signed certificate, so you will see an insecure warning message from your browser.
 This is expected; allow a security exception to continue.
 
-
 The `make` command will also print basic auth credentials upon completion 
-that can be used to sign in to the OpenFaas management gateway.
+that can be used to sign in to the OpenFaas management console.
 The OpenFaas management console can be accessed at https://gateway.example.
 
-## Optional Dependencies
+## Exploring
 
-These are optional dependencies that are not required to stand-up or tear-down the project.
-However, these may be useful if you would like to interact with various components to learn more.
+These are some ways to get started exploring the deployed example project.
 
-These tools are available by running the same Docker container used during creation,
-if you wish to use them without installing on your host:
+### OCI web console
 
-`make shell`
+The OCI web console can be reached at https://console.us-phoenix-1.oraclecloud.com.
+`us-phoenix-1` can be replaced with your home region if different.
 
-Once the bash session has started, run `./scripts/login.sh`.
-This will prompt you to sign in to OCI, and will handle the kubeconfig for `kubectl`.
+2 places to start with:
 
-[oci](https://docs.cloud.oracle.com/en-us/iaas/Content/GSG/Tasks/gettingstartedwiththeCLI.htm) is the cli for Oracle Cloud. 
+- https://console.us-phoenix-1.oraclecloud.com/networking/vcns
+- https://console.us-phoenix-1.oraclecloud.com/containers/clusters 
 
-`helm` and `kubectl` are for interacting with the OKE cluster and any deployed resources.
-Follow these [directions](https://docs.cloud.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengdownloadkubeconfigfile.htm) for authenticating with OKE.
- 
-[faas-cli](https://github.com/openfaas/faas-cli) is the cli for OpenFaas.
+Be sure to pick the `cloud-native` compartment under `List Scope` in the sidebar.
+Resources created by this example project are in the `cloud-native` compartment.
+
+### OpenFaas management console
+
+The OpenFaas console is available at https://gateway.example.
+Use the basic auth credentials provided at the end of `make` to sign in.
+
+From here, you can view and invoke any deployed functions.
+You can also deploy any new functions from publicly available OpenFaas registry or custom Docker images.
+
+### command line
+
+To explore the environment and Kubernetes cluster from the command line, run `make shell`.
+
+This will run a Docker container with an interactive bash session.
+The container comes installed with the tools you would need to interact with any component.
+
+- [oci](https://docs.cloud.oracle.com/en-us/iaas/Content/GSG/Tasks/gettingstartedwiththeCLI.htm) is the cli for Oracle Cloud.
+You will be prompted to login with OCI on start of the container. 
+- [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/) will be available, with context already configured to the OKE cluster.
+- [helm](https://helm.sh/docs/) for interacting with deployed charts.
+- [faas-cli](https://github.com/openfaas/faas-cli) is the cli for OpenFaas.
 This can be used to deploy new functions, among other things.
-You must login with the OpenFaas gateway, `https://gateway.example`,
-with the credentials printed at the end of the main creation script.
+It will already be logged in to the deployed OpenFaas gateway.
+- [artillery](https://artillery.io/docs/cli-reference/) is available for load testing the app function.
+- [tmux](https://github.com/tmux/tmux/wiki) is available to run multiple things at once within single container.
+This is avoid bound port conflicts running multiple instances of `make shell`. 
+
+Some things you could do:
+
+- View all namespaces in the Kubernetes cluster, as an overview of what is deployed.
+`kubectl get ns`
+- Port forward [Grafana](https://grafana.com/docs/grafana/latest/) to view OpenFaas metrics.
+`kubectl -n grafana port-forward svc/grafana --address 0.0.0.0 3000:80`
+Grafana will be reachable on host at http://localhost:3000, with `admin:password` for credentials.
+A dashboard is pre-installed to view basic metrics of deployed functions.
+- Load test the deployed function.
+`artillery run artillery.yaml`
+[artillery.yaml](artillery.yaml) can be edited on host and re-ran.
+- Inspect the deployed app function.
+`faas-cli describe app -g https://gateway.example`
 
 ## Clean Up
 
